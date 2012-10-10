@@ -62,4 +62,24 @@ def search_station_by_name(station_str):
 	print(resultStationsList)
 	return resultStationsList
 	
-search_station_by_name("제주대학교")
+def get_arrival_information_from_id(stID, ndID):
+	try:
+		arrivalInfoUrl = SYSTEM_ROOT_URL + ARRIVAL_INFO_URL + '?stid=' + str(stID) + '&ndID=' + str(ndID) + '&bit=0'
+		recvInfoHtml = urllib.request.urlopen(arrivalInfoUrl)
+	except IOError:
+		print("URL address error - arrival info")
+	else:
+		parser = etree.HTMLParser()
+		recvRawHtml = recvInfoHtml.read()
+		recvRawDecodedHtml = recvRawHtml.decode('cp949')
+		recvParsedHtml = etree.parse(io.StringIO(recvRawDecodedHtml), parser) # result parsed tree
+		#debug code
+		#result = etree.tostring(recvParsedHtml.getroot(), pretty_print=True, method="html")
+		#print(result)
+		
+		for htmlTree in recvParsedHtml.getiterator("table"):
+			print(etree.tostring(htmlTree, pretty_print=True))
+			print("------------------------------------------")
+			
+search_station_by_name("제주시")
+get_arrival_information_from_id(405000991,4050119000) # 제주시외버스터미널 코드
