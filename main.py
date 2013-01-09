@@ -50,7 +50,7 @@ def search_station_by_name(station_str):
 		
 	while True:
 		page_num = page_num + 1
-		print("Searching station name...")
+		print("내용 검색 중...")
 		print(page_num)
 		pageDictsList = search_station_by_name_with_page(station_str, page_num)
 		if pageDictsList == []:
@@ -64,22 +64,24 @@ def search_station_by_name(station_str):
 	
 def get_arrival_information_from_id(stID, ndID):
 	try:
-		arrivalInfoUrl = SYSTEM_ROOT_URL + ARRIVAL_INFO_URL + '?stid=' + str(stID) + '&ndID=' + str(ndID) + '&bit=0'
+		arrivalInfoUrl = SYSTEM_ROOT_URL + ARRIVAL_INFO_URL + '?stID=' + str(stID) + '&ndID=' + str(ndID) + '&bit=0'
 		recvInfoHtml = urllib.request.urlopen(arrivalInfoUrl)
 	except IOError:
 		print("URL address error - arrival info")
 	else:
+		resultList = []
 		parser = etree.HTMLParser()
 		recvRawHtml = recvInfoHtml.read()
 		recvRawDecodedHtml = recvRawHtml.decode('cp949')
 		recvParsedHtml = etree.parse(io.StringIO(recvRawDecodedHtml), parser) # result parsed tree
-		#debug code
-		#result = etree.tostring(recvParsedHtml.getroot(), pretty_print=True, method="html")
-		#print(result)
 		
 		for htmlTree in recvParsedHtml.getiterator("table"):
-			print(etree.tostring(htmlTree, pretty_print=True))
-			print("------------------------------------------")
+			for subHtmlTree in htmlTree.iter('div'): # div에 도착정보가 다 있어서 수정을 하게 됨.
+				encodedText = subHtmlTree.text.encode('cp949', 'ignore')
+				resultByte = encodedText.decode('cp949')
+				resultList.append(str(resultByte))
+
+		print(resultList)
 			
-search_station_by_name("제주시")
-get_arrival_information_from_id(405000991,4050119000) # 제주시외버스터미널 코드
+search_station_by_name("제주대학교")
+get_arrival_information_from_id(405000725,4050099200) # 제주시외버스터미널 코드
