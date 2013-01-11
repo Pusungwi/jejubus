@@ -10,7 +10,7 @@ SEARCH_URL = '031_SearchResult.jsp'
 
 def search_station_by_name_with_page(station_str, page_num):
 	SEARCH_PARAM = urllib.parse.urlencode({'keyword': station_str, 'page': page_num}, encoding='cp949')
-	resultLists = []
+	resultDictsList = []
 	
 	try:
 		requestFullUrl = SYSTEM_ROOT_URL + SEARCH_URL + '?' + SEARCH_PARAM
@@ -33,16 +33,28 @@ def search_station_by_name_with_page(station_str, page_num):
 					isFoundedStation = 1
 					rawParsedClass = urllib.parse.urlparse(htmlValue)
 					parsedHtmlQueryDict = urllib.parse.parse_qs(rawParsedClass.query) 
-					resultLists.append(parsedHtmlQueryDict)
+					resultDictsList.append(parsedHtmlQueryDict)
 					#print(parsedHtmlQueryDict)
-					
+
 		#if isFoundedStation == 0:
 		#	print('Not Found')
 		#else:	
 		#	get arrival list
-		#	arrivalInfoUrl = SYSTEM_ROOT_URL + ARRIVAL_INFO_URL + '?stid=' + resultLists + '&ndID=' + resultLists + '&bit=0' U.C
-		#	print(resultLists)		
-	return resultLists
+		#	arrivalInfoUrl = SYSTEM_ROOT_URL + ARRIVAL_INFO_URL + '?stid=' + resultDictsList + '&ndID=' + resultDictsList + '&bit=0' U.C
+		#	print(resultDictsList)		
+
+	#결과 개수가 한개면 stID와 ndID를 기초로 바로 결과 띄워주게 함.
+	# 리턴되는 딕셔너리 값 예제 : [{'keyword': ['제주시외버스터미널'], 'page': ['1'], 'stID': ['405000991'], 'stName': ['제주시외버스터미널'], 'stX': ['15480690'], 'stY': ['47004'], 'ndID': ['4050119000']}]		
+	for stationDict in resultDictsList:
+		targetStID = stationDict['stID'][0]
+		targetNdID = stationDict['ndID'][0]
+
+		print("--------------------------------------------------------")
+		print("결과값의 도착정보를 가져옵니다. target : " + stationDict['stName'][0])
+		print("stID : " + targetStID + " ndID : " + targetNdID)
+		get_arrival_information_from_id(targetStID, targetNdID)
+
+	return resultDictsList
 
 def search_station_by_name(station_str):
 	page_num = 0
@@ -65,6 +77,7 @@ def search_station_by_name(station_str):
 def get_arrival_information_from_id(stID, ndID):
 	try:
 		arrivalInfoUrl = SYSTEM_ROOT_URL + ARRIVAL_INFO_URL + '?stID=' + str(stID) + '&ndID=' + str(ndID) + '&bit=0'
+		print("arrival info url : " + arrivalInfoUrl)
 		recvInfoHtml = urllib.request.urlopen(arrivalInfoUrl)
 	except IOError:
 		print("URL address error - arrival info")
@@ -83,5 +96,5 @@ def get_arrival_information_from_id(stID, ndID):
 
 		print(resultList)
 			
-search_station_by_name("제주대학교")
+#search_station_by_name("제주시청")
 get_arrival_information_from_id(405000725,4050099200) # 제주시외버스터미널 코드
