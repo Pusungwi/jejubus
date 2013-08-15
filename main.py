@@ -1,3 +1,11 @@
+#!/usr/bin/env python 
+
+#Title : jejubus
+#Version : 0.1
+#Author : Yi 'Pusungwi' Yeon Jae
+#Description : a getting data from jeju bus information script
+#License : read LICENSES
+
 import urllib.request
 import urllib.parse
 import io
@@ -96,5 +104,6 @@ def get_arrival_information_from_id(stID, ndID):
 
 		print(resultList)
 			
-#search_station_by_name("제주시청")
-get_arrival_information_from_id(405000725,4050099200) # 제주시외버스터미널 코드
+if __name__ == "__main__":
+	#search_station_by_name("제주시청")
+	get_arrival_information_from_id(405000725,4050099200) # 제주시외버스터미널 코드
